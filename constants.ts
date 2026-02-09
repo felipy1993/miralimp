@@ -116,3 +116,26 @@ export const PROCESS_STEPS: ProcessStep[] = [
     description: "Seu estofado limpo, higienizado e revitalizado."
   }
 ];
+
+export const FAQ_ITEMS = [
+  {
+    question: "Quanto tempo demora o serviço?",
+    answer: "O tempo varia de acordo com o tamanho e estado do estofado, mas em média leva de 1h30 a 3 horas."
+  },
+  {
+    question: "Posso usar o sofá logo depois?",
+    answer: "A secagem completa leva de 4 a 8 horas, dependendo da ventilação do ambiente e do tecido. Nossa extração remove cerca de 90% da umidade."
+  },
+  {
+    question: "Vocês removem todas as manchas?",
+    answer: "Removemos a maioria das manchas de uso comum, gordura e odores. No entanto, manchas de caneta, tintas de cabelo ou tecidos desbotados podem não sair totalmente, mas garantimos a melhor higienização possível."
+  },
+  {
+    question: "Os produtos são seguros?",
+    answer: "Sim! Utilizamos produtos profissionais, biodegradáveis e hipoalergênicos, totalmente seguros para crianças e animais de estimação."
+  },
+  {
+    question: "Preciso levar o sofá até vocês?",
+    answer: "Não, atendemos inteiramente em domicílio. Levamos todo o equipamento necessário até sua casa ou empresa."
+  }
+];

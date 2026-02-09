@@ -1,81 +1,57 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import BeforeAfterSlider from './BeforeAfterSlider';
 
 const BeforeAfter: React.FC = () => {
   return (
-    <section id="resultados" className="py-24 bg-brand-navy-900 relative">
-      <div className="absolute inset-0 bg-brand-navy-800/50"></div>
+    <section id="resultados" className="py-24 bg-brand-navy-900 relative overflow-hidden">
+      <div className="absolute inset-0 bg-brand-navy-800/20"></div>
       
+      {/* Decorative Blur */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-gold/5 rounded-full blur-[100px]"></div>
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
-          <span className="text-brand-gold font-bold tracking-widest uppercase text-xs mb-2 block">Portfólio</span>
-          <h3 className="text-3xl md:text-5xl font-bold text-white font-serif">Resultados Surpreendentes</h3>
+          <span className="text-brand-gold font-bold tracking-widest uppercase text-xs mb-2 block">Portfólio Real</span>
+          <h3 className="text-3xl md:text-5xl font-bold text-white font-serif mb-4">Resultados Surpreendentes</h3>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Arraste o slider para ver a diferença que uma higienização profissional faz no seu estofado.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {/* Case 1 */}
             <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="group relative"
+                className="flex flex-col gap-6"
             >
-                <div className="bg-white p-2 shadow-2xl transform transition-transform duration-500 group-hover:-translate-y-2">
-                    <div className="relative h-80 overflow-hidden bg-gray-200">
-                        {/* Imagem Antes (Base) */}
-                        <img 
-                            src="https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                            alt="Antes e Depois Sofá" 
-                            className="absolute inset-0 w-full h-full object-cover filter contrast-125 saturate-0 group-hover:saturate-100 transition-all duration-700"
-                        />
-                        
-                        {/* Badge */}
-                        <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 uppercase tracking-wider border border-white/20">
-                            Antes
-                        </div>
-                        <div className="absolute top-4 right-4 bg-brand-gold text-brand-navy-900 text-xs font-bold px-3 py-1 uppercase tracking-wider shadow-lg">
-                            Depois
-                        </div>
-                        
-                        {/* Split effect simulated with a slider line or simple hover reveal could go here, 
-                            but a clean side-by-side or hover-to-color is elegant too. 
-                            Let's do a diagonal split overlay for style. */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-transparent opacity-60"></div>
-                    </div>
-                    <div className="p-6 bg-white border-t-4 border-brand-gold">
-                        <h4 className="font-bold text-xl text-brand-navy-900 font-serif">Restauração de Sofá Retrátil</h4>
-                        <p className="text-sm text-gray-500 mt-2">Remoção total de manchas de uso e recuperação da cor original.</p>
-                    </div>
+                <BeforeAfterSlider 
+                    beforeImg="https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    afterImg="https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                />
+                <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">
+                    <h4 className="font-bold text-xl text-white font-serif">Restauração de Sofá Retrátil</h4>
+                    <p className="text-sm text-gray-400 mt-2">Remoção total de manchas de uso e recuperação da cor original.</p>
                 </div>
             </motion.div>
 
             {/* Case 2 */}
             <motion.div 
-                 initial={{ opacity: 0, y: 30 }}
-                 whileInView={{ opacity: 1, y: 0 }}
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
                  viewport={{ once: true }}
                  transition={{ delay: 0.2 }}
-                 className="group relative"
+                 className="flex flex-col gap-6"
             >
-                <div className="bg-white p-2 shadow-2xl transform transition-transform duration-500 group-hover:-translate-y-2">
-                    <div className="relative h-80 overflow-hidden bg-gray-200">
-                         <img 
-                            src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                            alt="Antes e Depois Cadeira" 
-                            className="absolute inset-0 w-full h-full object-cover filter contrast-125 saturate-0 group-hover:saturate-100 transition-all duration-700"
-                        />
-                        <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 uppercase tracking-wider border border-white/20">
-                            Antes
-                        </div>
-                        <div className="absolute top-4 right-4 bg-brand-gold text-brand-navy-900 text-xs font-bold px-3 py-1 uppercase tracking-wider shadow-lg">
-                            Depois
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-transparent opacity-60"></div>
-                    </div>
-                    <div className="p-6 bg-white border-t-4 border-brand-gold">
-                        <h4 className="font-bold text-xl text-brand-navy-900 font-serif">Cadeiras de Jantar de Luxo</h4>
-                        <p className="text-sm text-gray-500 mt-2">Higienização profunda para remoção de ácaros e odores.</p>
-                    </div>
+                <BeforeAfterSlider 
+                    beforeImg="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    afterImg="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                />
+                <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">
+                    <h4 className="font-bold text-xl text-white font-serif">Higienização de Conjunto de Jantar</h4>
+                    <p className="text-sm text-gray-400 mt-2">Eliminação de ácaros e revitalização profunda do tecido.</p>
                 </div>
             </motion.div>
         </div>

@@ -27,9 +27,12 @@ const Process: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="text-center group"
               >
-                <div className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center border-4 border-gray-50 group-hover:border-brand-gold transition-colors duration-500 mb-6 shadow-xl relative">
-                   <div className="absolute inset-2 rounded-full border border-dashed border-gray-300 group-hover:border-brand-gold/50 transition-colors"></div>
-                   <span className="text-3xl font-serif font-bold text-brand-navy-900 group-hover:text-brand-gold transition-colors">{step.id}</span>
+                <div className="w-24 h-24 mx-auto bg-white rounded-2xl flex items-center justify-center border-2 border-gray-100 group-hover:border-brand-gold transition-all duration-500 mb-6 shadow-xl relative group-hover:-translate-y-2">
+                   <div className="absolute inset-2 rounded-xl border border-dashed border-gray-200 group-hover:border-brand-gold/50 transition-colors"></div>
+                   <div className="absolute -top-3 -right-3 w-8 h-8 bg-gold-gradient rounded-full flex items-center justify-center text-brand-navy-900 text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    {index + 1}
+                   </div>
+                   <span className="text-4xl font-serif font-black text-transparent bg-clip-text bg-gold-gradient group-hover:scale-110 transition-transform duration-500">0{step.id}</span>
                 </div>
                 
                 <h4 className="text-xl font-bold text-brand-navy-900 mb-3">{step.title}</h4>

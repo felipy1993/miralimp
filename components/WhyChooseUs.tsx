@@ -28,14 +28,15 @@ const WhyChooseUs: React.FC = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex flex-col gap-3"
+                  className="flex flex-col gap-4 group"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-brand-navy-900 flex items-center justify-center shadow-lg transform -rotate-3 hover:rotate-0 transition-transform">
-                    <feature.icon className="w-6 h-6 text-brand-gold" />
+                  <div className="w-14 h-14 rounded-xl bg-brand-navy-900 border border-brand-gold/20 flex items-center justify-center shadow-lg transform -rotate-3 group-hover:rotate-0 group-hover:border-brand-gold group-hover:shadow-brand-gold/10 transition-all duration-500 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gold-gradient opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                    <feature.icon className="w-7 h-7 text-brand-gold group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-brand-navy-900 mb-2">{feature.title}</h4>
-                    <p className="text-gray-500 text-sm">{feature.description}</p>
+                    <h4 className="text-lg font-bold text-brand-navy-900 mb-2 group-hover:text-brand-gold transition-colors">{feature.title}</h4>
+                    <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
               ))}

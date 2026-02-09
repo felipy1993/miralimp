@@ -6,9 +6,11 @@ import WhyChooseUs from './components/WhyChooseUs';
 import BeforeAfter from './components/BeforeAfter';
 import Testimonials from './components/Testimonials';
 import Process from './components/Process';
+import FAQ from './components/FAQ';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
+import ScrollToTop from './components/ScrollToTop';
 
 const App: React.FC = () => {
   return (
@@ -28,11 +30,13 @@ const App: React.FC = () => {
         <div id="processo">
           <Process />
         </div>
+        <FAQ />
         <FinalCTA />
       </main>
 
       <Footer />
       <FloatingWhatsApp />
+      <ScrollToTop />
     </div>
   );
 };
