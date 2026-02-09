@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 import { COMPANY_NAME, REGION, INSTAGRAM_LINK, PHONE_DISPLAY, PHONE_LINK } from '../constants';
-import { Instagram, MapPin, Phone, Clock, Mail, Lock } from 'lucide-react';
+import { Instagram, MapPin, Phone, Clock, Mail, Settings } from 'lucide-react';
 
 interface FooterProps {
   onAdminClick?: () => void;
@@ -89,15 +89,15 @@ const Footer: FC<FooterProps> = ({ onAdminClick }) => {
         </div>
 
         <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <p>&copy; {new Date().getFullYear()} {COMPANY_NAME}. Todos os direitos reservados.</p>
-            {/* Subtle hidden Admin link */}
+            {/* Visible Admin Access Button */}
             <button 
               onClick={onAdminClick}
-              className="opacity-0 hover:opacity-10 transition-opacity ml-2 p-1 text-white flex items-center justify-center" 
-              title="Acesso Restrito"
+              className="flex items-center gap-1.5 text-gray-700 hover:text-brand-gold transition-colors border border-gray-800/30 px-2 py-1 rounded" 
             >
-              <Lock size={10} />
+              <Settings size={12} />
+              <span>Acesso Admin</span>
             </button>
           </div>
           <p>Desenvolvido com excelência.</p>
