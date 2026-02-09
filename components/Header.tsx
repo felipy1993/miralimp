@@ -31,18 +31,24 @@ const Header: React.FC = () => {
       }`}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Logo */}
-        <a href="#" className="flex flex-col group cursor-pointer">
-          <div className="flex items-center gap-2">
-            <Droplets className="w-6 h-6 text-brand-gold" />
+        <a href="#" className="flex items-center gap-4 group cursor-pointer">
+          <div className="relative w-12 h-12 md:w-14 md:h-14">
+            <img 
+              src="/logo.png" 
+              alt="Miralimp Logo" 
+              className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 shadow-2xl rounded-full bg-brand-navy-800 border border-brand-gold/30"
+            />
+            <div className="absolute inset-0 bg-brand-gold/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
+          <div className="flex flex-col">
             <div className="text-2xl md:text-3xl font-bold tracking-tight font-serif">
               <span className="text-white group-hover:text-gray-200 transition-colors">Mira</span>
               <span className="text-transparent bg-clip-text bg-gold-gradient">limp</span>
             </div>
+            <span className="text-[10px] md:text-xs text-brand-gold/80 uppercase tracking-[0.2em]">
+              {COMPANY_SUBTITLE}
+            </span>
           </div>
-          <span className="text-[10px] md:text-xs text-brand-gold/80 uppercase tracking-[0.2em] ml-8">
-            {COMPANY_SUBTITLE}
-          </span>
         </a>
 
         {/* Desktop Nav */}

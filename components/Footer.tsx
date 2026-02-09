@@ -9,8 +9,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-             <div className="text-2xl font-bold tracking-tight font-serif mb-6 text-white">
-                Mira<span className="text-brand-gold">limp</span>
+             <div className="flex items-center gap-3 mb-6">
+                <img src="/logo.png" alt="Miralimp Logo" className="w-10 h-10 object-contain rounded-full border border-brand-gold/30 bg-brand-navy-900" />
+                <div className="text-2xl font-bold tracking-tight font-serif text-white">
+                    Mira<span className="text-brand-gold">limp</span>
+                </div>
              </div>
              <p className="text-sm leading-relaxed mb-6 text-gray-500">
                Referência em higienização de estofados em Mirassol e Região. Comprometidos com a excelência e a satisfação total de nossos clientes.
