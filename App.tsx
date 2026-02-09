@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect, type FC } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -11,8 +11,23 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import ScrollToTop from './components/ScrollToTop';
+import AdminPanel from './components/AdminPanel';
 
-const App: React.FC = () => {
+const App: FC = () => {
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true);
+      }
+    };
+    
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Header />
@@ -34,9 +49,14 @@ const App: React.FC = () => {
         <FinalCTA />
       </main>
 
-      <Footer />
+      <Footer onAdminClick={() => setIsAdminOpen(true)} />
       <FloatingWhatsApp />
       <ScrollToTop />
+
+      <AdminPanel isOpen={isAdminOpen} onClose={() => {
+        setIsAdminOpen(false);
+        window.location.hash = '';
+      }} />
     </div>
   );
 };

@@ -1,7 +1,12 @@
-import { COMPANY_NAME, REGION, INSTAGRAM_LINK } from '../constants';
-import { Instagram, MapPin, Phone, Clock, Mail } from 'lucide-react';
+import { type FC } from 'react';
+import { COMPANY_NAME, REGION, INSTAGRAM_LINK, PHONE_DISPLAY, PHONE_LINK } from '../constants';
+import { Instagram, MapPin, Phone, Clock, Mail, Lock } from 'lucide-react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onAdminClick?: () => void;
+}
+
+const Footer: FC<FooterProps> = ({ onAdminClick }) => {
   return (
     <footer className="bg-brand-black text-gray-400 pt-20 pb-10 border-t border-brand-navy-900">
       <div className="container mx-auto px-4">
@@ -50,7 +55,9 @@ const Footer: React.FC = () => {
                   <Phone className="w-5 h-5 text-brand-gold shrink-0" />
                   <div>
                     <span className="block text-white mb-1">Telefone / WhatsApp</span>
-                    <span>(17) 99226-5090</span>
+                    <a href={PHONE_LINK} className="hover:text-brand-gold transition-colors font-medium">
+                      {PHONE_DISPLAY}
+                    </a>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -82,7 +89,17 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-          <p>&copy; {new Date().getFullYear()} {COMPANY_NAME}. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-2">
+            <p>&copy; {new Date().getFullYear()} {COMPANY_NAME}. Todos os direitos reservados.</p>
+            {/* Subtle hidden Admin link */}
+            <button 
+              onClick={onAdminClick}
+              className="opacity-0 hover:opacity-10 transition-opacity ml-2 p-1 text-white flex items-center justify-center" 
+              title="Acesso Restrito"
+            >
+              <Lock size={10} />
+            </button>
+          </div>
           <p>Desenvolvido com excelência.</p>
         </div>
       </div>

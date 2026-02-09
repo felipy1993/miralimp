@@ -8,6 +8,8 @@ export const WHATSAPP_MESSAGE = "Olá! Gostaria de um orçamento para higieniza�
 export const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 export const REGION = "Mirassol e Região";
 export const INSTAGRAM_LINK = "https://www.instagram.com/miralimpestofadoss?igsh=cTh1NXRuMnJjZml3";
+export const PHONE_DISPLAY = "(17) 99226-5090";
+export const PHONE_LINK = "tel:+5517992265090";
 
 export const SERVICES: ServiceItem[] = [
   {
