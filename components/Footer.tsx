@@ -1,6 +1,5 @@
-import React from 'react';
-import { COMPANY_NAME, REGION } from '../constants';
-import { Instagram, Facebook, MapPin, Phone, Clock, Mail } from 'lucide-react';
+import { COMPANY_NAME, REGION, INSTAGRAM_LINK } from '../constants';
+import { Instagram, MapPin, Phone, Clock, Mail } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -19,8 +18,15 @@ const Footer: React.FC = () => {
                Referência em higienização de estofados em Mirassol e Região. Comprometidos com a excelência e a satisfação total de nossos clientes.
              </p>
              <div className="flex gap-4">
-               <a href="#" className="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:border-brand-gold hover:text-brand-gold transition-all"><Instagram size={18} /></a>
-               <a href="#" className="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:border-brand-gold hover:text-brand-gold transition-all"><Facebook size={18} /></a>
+               <a 
+                href={INSTAGRAM_LINK} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:border-brand-gold hover:text-brand-gold transition-all"
+                title="Siga-nos no Instagram"
+               >
+                <Instagram size={18} />
+               </a>
              </div>
           </div>
 
