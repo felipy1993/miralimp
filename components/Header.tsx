@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { COMPANY_SUBTITLE, WHATSAPP_LINK } from '../constants';
 import { Menu, X, Droplets } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Header: React.FC = () => {
+const Header: FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState, type FC } from 'react';
 import { FAQ_ITEMS } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
-const FAQ: React.FC = () => {
+const FAQ: FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (

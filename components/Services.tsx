@@ -1,8 +1,8 @@
-import React from 'react';
+import { type FC } from 'react';
 import { SERVICES } from '../constants';
 import { motion } from 'framer-motion';
 
-const Services: React.FC = () => {
+const Services: FC = () => {
   return (
     <section id="servicos" className="py-24 bg-brand-black relative overflow-hidden">
       {/* Decorative Glows */}
