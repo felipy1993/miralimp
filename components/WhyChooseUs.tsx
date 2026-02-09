@@ -1,10 +1,10 @@
 import React from 'react';
 import { FEATURES } from '../constants';
 import { motion } from 'framer-motion';
-import { useSiteContent } from '../hooks/useSiteContent';
+import { useSiteData } from '../context/SiteContentContext';
 
 const WhyChooseUs: React.FC = () => {
-  const { content } = useSiteContent();
+  const { content } = useSiteData();
   return (
     <section id="diferenciais" className="py-24 bg-white relative overflow-hidden">
       {/* Decorative bg */}

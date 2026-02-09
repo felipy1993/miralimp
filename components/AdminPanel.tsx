@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X, Upload, Save, Image as ImageIcon, Type, Phone, Mail, Instagram, MapPin, LogOut, Eye, EyeOff } from 'lucide-react';
 import { ref, set } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { db, auth } from '../firebase';
-import { useSiteContent, DEFAULT_CONTENT } from '../hooks/useSiteContent';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, auth, storage } from '../firebase';
+import { useSiteData } from '../context/SiteContentContext';
+import { DEFAULT_CONTENT } from '../hooks/useSiteContent';
 
 interface SiteContent {
   // Informações de Contato
@@ -44,10 +46,12 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { content: currentContent, loading } = useSiteContent();
+  const { content: currentContent, loading } = useSiteData();
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [activeTab, setActiveTab] = useState<'contact' | 'hero' | 'images'>('contact');
   const [saveMessage, setSaveMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [imageUploading, setImageUploading] = useState<string | null>(null);
 
   // Escutar estado de autenticação do Firebase
   useEffect(() => {
@@ -73,7 +77,6 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
     setError('');
     try {
       await signInWithEmailAndPassword(auth, login, password);
-      // O onAuthStateChanged vai cuidar de setar o isAuthenticated
     } catch (err: any) {
       console.error(err);
       setError('E-mail ou senha incorretos!');
@@ -90,30 +93,74 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
+    
     try {
-      setSaveMessage('Salvando...');
-      const contentRef = ref(db, 'site_content');
-      await set(contentRef, content);
+      setIsSaving(true);
+      setSaveMessage('⏳ Analisando alterações...');
       
-      setSaveMessage('✓ Alterações salvas no Firebase!');
+      // Criar um objeto apenas com o que realmente mudou
+      const updates: any = {};
+      let hasChanges = false;
+
+      (Object.keys(content) as Array<keyof SiteContent>).forEach(key => {
+        if (content[key] !== currentContent?.[key]) {
+          updates[key] = content[key];
+          hasChanges = true;
+        }
+      });
+
+      if (!hasChanges) {
+        setSaveMessage('ℹ️ Nenhuma alteração detectada.');
+        setTimeout(() => setSaveMessage(''), 3000);
+        setIsSaving(false);
+        return;
+      }
+
+      setSaveMessage(`🚀 Salvando ${Object.keys(updates).length} alteração(ões)...`);
+      
+      const { update } = await import('firebase/database');
+      const contentRef = ref(db, 'site_content');
+      await update(contentRef, updates);
+      
+      setSaveMessage('✅ Atualizado com sucesso!');
       
       setTimeout(() => {
         setSaveMessage('');
       }, 3000);
     } catch (e) {
       console.error('Erro ao salvar:', e);
-      setSaveMessage('❌ Erro ao salvar no Firebase');
+      setSaveMessage('❌ Erro ao salvar: Verifique sua conexão.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleImageUpload = (field: keyof SiteContent, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (field: keyof SiteContent, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setContent(prev => ({ ...prev, [field]: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      if (file.size > 2 * 1024 * 1024) {
+        alert("A imagem é muito grande! Escolha uma imagem de até 2MB.");
+        return;
+      }
+
+      try {
+        setImageUploading(field);
+        setSaveMessage('⬆️ Fazendo upload da imagem...');
+        
+        const fileRef = storageRef(storage, `site/${field}_${Date.now()}`);
+        await uploadBytes(fileRef, file);
+        const url = await getDownloadURL(fileRef);
+        
+        setContent(prev => ({ ...prev, [field]: url }));
+        setSaveMessage('✅ Imagem pronta para salvar!');
+        setTimeout(() => setSaveMessage(''), 3000);
+      } catch (err) {
+        console.error("Erro no upload:", err);
+        setSaveMessage('❌ Erro ao enviar imagem.');
+      } finally {
+        setImageUploading(null);
+      }
     }
   };
 
@@ -571,25 +618,37 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
             )}
 
             {/* Save Button */}
-            <div className="mt-12 pt-8 border-t border-white/5 flex justify-between items-center">
-              <div>
+            <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-3">
                 {saveMessage && (
-                  <p className="text-green-500 text-sm font-medium">{saveMessage}</p>
+                  <motion.p 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className={`text-sm font-medium ${saveMessage.includes('❌') ? 'text-red-500' : 'text-brand-gold'}`}
+                  >
+                    {saveMessage}
+                  </motion.p>
                 )}
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 w-full md:w-auto">
                 <button 
                   onClick={onClose}
-                  className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={isSaving}
+                  className="flex-1 md:flex-none px-6 py-3 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button 
                   onClick={handleSave}
-                  className="px-10 py-3 bg-gold-gradient text-brand-navy-900 font-bold rounded shadow-lg hover:shadow-brand-gold/30 transition-all flex items-center gap-2"
+                  disabled={isSaving}
+                  className="flex-1 md:flex-none px-10 py-3 bg-gold-gradient text-brand-navy-900 font-bold rounded shadow-lg hover:shadow-brand-gold/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Save size={18} />
-                  Salvar Alterações
+                  {isSaving ? (
+                    <div className="w-5 h-5 border-2 border-brand-navy-900 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Save size={18} />
+                  )}
+                  {isSaving ? 'Salvando...' : 'Salvar Alterações'}
                 </button>
               </div>
             </div>

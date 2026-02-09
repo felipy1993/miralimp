@@ -1,13 +1,13 @@
 import { useState, useEffect, type FC } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSiteContent } from '../hooks/useSiteContent';
+import { useSiteData } from '../context/SiteContentContext';
 import { COMPANY_SUBTITLE, WHATSAPP_LINK } from '../constants';
 
 const Header: FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { content } = useSiteContent();
+  const { content } = useSiteData();
 
   useEffect(() => {
     const handleScroll = () => {

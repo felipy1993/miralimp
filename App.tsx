@@ -12,10 +12,10 @@ import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import ScrollToTop from './components/ScrollToTop';
 import AdminPanel from './components/AdminPanel';
-import { useSiteContent } from './hooks/useSiteContent';
+import { SiteContentProvider, useSiteData } from './context/SiteContentContext';
 
-const App: FC = () => {
-  const { content, loading } = useSiteContent();
+const AppContent: FC = () => {
+  const { content, loading } = useSiteData();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {
@@ -60,6 +60,14 @@ const App: FC = () => {
         window.location.hash = '';
       }} />
     </div>
+  );
+};
+
+const App: FC = () => {
+  return (
+    <SiteContentProvider>
+      <AppContent />
+    </SiteContentProvider>
   );
 };
 

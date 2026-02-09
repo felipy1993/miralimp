@@ -1,12 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 // Configuração do Firebase da Miralimp
 const firebaseConfig = {
   apiKey: "AIzaSyCzijKh0O13qRk96ixS8B4jwCUfBwsih6M",
   authDomain: "miralimp.firebaseapp.com",
-  databaseURL: "https://miralimp-default-rtdb.firebaseio.com",
+  // VERIFIQUE ESTE LINK NO CONSOLE DO FIREBASE:
+  databaseURL: "https://miralimp-default-rtdb.firebaseio.com", 
   projectId: "miralimp",
   storageBucket: "miralimp.firebasestorage.app",
   messagingSenderId: "631219076852",
@@ -19,3 +21,4 @@ const app = initializeApp(firebaseConfig);
 // Exporta as instâncias
 export const db = getDatabase(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);

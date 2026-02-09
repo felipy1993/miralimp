@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { WHATSAPP_LINK } from '../constants';
 import { Check, ArrowRight, Star } from 'lucide-react';
 
-import { useSiteContent } from '../hooks/useSiteContent';
+import { useSiteData } from '../context/SiteContentContext';
 
 const Hero: React.FC = () => {
-  const { content } = useSiteContent();
+  const { content } = useSiteData();
   return (
     <section className="relative w-full min-h-screen flex items-center bg-brand-navy-900 overflow-hidden pt-20">
       {/* Background Image with heavy overlay */}
