@@ -12,8 +12,10 @@ import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import ScrollToTop from './components/ScrollToTop';
 import AdminPanel from './components/AdminPanel';
+import { useSiteContent } from './hooks/useSiteContent';
 
 const App: FC = () => {
+  const { content, loading } = useSiteContent();
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {

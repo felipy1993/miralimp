@@ -1,8 +1,10 @@
 import React from 'react';
 import { FEATURES } from '../constants';
 import { motion } from 'framer-motion';
+import { useSiteContent } from '../hooks/useSiteContent';
 
 const WhyChooseUs: React.FC = () => {
+  const { content } = useSiteContent();
   return (
     <section id="diferenciais" className="py-24 bg-white relative overflow-hidden">
       {/* Decorative bg */}
@@ -54,13 +56,13 @@ const WhyChooseUs: React.FC = () => {
             >
               <div className="absolute inset-0 border-2 border-brand-gold transform translate-x-4 translate-y-4 z-0"></div>
               <img 
-                src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80" 
+                src={content.whyChooseUsImage} 
                 alt="Profissional Miralimp" 
                 className="relative z-10 w-full h-auto object-cover shadow-2xl grayscale hover:grayscale-0 transition-all duration-700"
               />
               
               <div className="absolute -bottom-6 -left-6 bg-brand-navy-900 p-6 shadow-xl z-20 max-w-xs border-t-4 border-brand-gold">
-                <p className="text-white font-serif italic text-lg">"Higienizar é um ato de carinho com sua família."</p>
+                <p className="text-white font-serif italic text-lg">"{content.whyChooseUsQuote}"</p>
               </div>
             </motion.div>
           </div>

@@ -3,13 +3,16 @@ import { motion } from 'framer-motion';
 import { WHATSAPP_LINK } from '../constants';
 import { Check, ArrowRight, Star } from 'lucide-react';
 
+import { useSiteContent } from '../hooks/useSiteContent';
+
 const Hero: React.FC = () => {
+  const { content } = useSiteContent();
   return (
     <section className="relative w-full min-h-screen flex items-center bg-brand-navy-900 overflow-hidden pt-20">
       {/* Background Image with heavy overlay */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+          src={content.heroImage} 
           alt="Sala luxuosa limpa" 
           className="w-full h-full object-cover opacity-30 scale-105"
         />
@@ -30,18 +33,15 @@ const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 py-1.5 px-5 rounded-full bg-brand-navy-800/80 border border-brand-gold/30 backdrop-blur-md mb-8">
                <Star className="w-3 h-3 text-brand-gold fill-brand-gold" />
-               <span className="text-brand-gold text-xs font-bold tracking-widest uppercase">Referência em Mirassol e Região</span>
+               <span className="text-brand-gold text-xs font-bold tracking-widest uppercase">{content.heroSubtitle}</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6 font-sans">
-              Excelência em <br />
-              <span className="text-transparent bg-clip-text bg-gold-gradient font-serif italic pr-2">Higienização</span>
-              de Estofados
+              {content.heroTitle}
             </h1>
             
             <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl font-light leading-relaxed">
-              Transforme seu ambiente com a limpeza profunda da <strong className="text-white">Miralimp</strong>. 
-              Métodos exclusivos que eliminam ácaros e devolvem a beleza original do seu móvel com segurança total.
+              {content.heroDescription}
             </p>
           </motion.div>
 
