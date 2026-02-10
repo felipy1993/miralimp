@@ -2,12 +2,12 @@ import { useState, useEffect, type FC } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteData } from '../context/SiteContentContext';
-import { COMPANY_SUBTITLE, WHATSAPP_LINK } from '../constants';
 
 const Header: FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { content } = useSiteData();
+  const whatsappLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(content.whatsappMessage || '')}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +66,7 @@ const Header: FC = () => {
             </a>
           ))}
           <a 
-            href={WHATSAPP_LINK}
+            href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-2.5 bg-gold-gradient text-brand-navy-900 rounded-sm font-bold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-105 transition-all duration-300 uppercase tracking-wide text-sm"
@@ -105,7 +105,7 @@ const Header: FC = () => {
                 </a>
               ))}
               <a 
-                href={WHATSAPP_LINK}
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-gold-gradient text-brand-navy-900 py-4 rounded text-center font-bold uppercase tracking-wide mt-4"

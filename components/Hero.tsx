@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { WHATSAPP_LINK } from '../constants';
 import { Check, ArrowRight, Star } from 'lucide-react';
-
 import { useSiteData } from '../context/SiteContentContext';
 
 const Hero: React.FC = () => {
   const { content } = useSiteData();
+  const whatsappLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(content.whatsappMessage || '')}`;
+
   return (
     <section className="relative w-full min-h-screen flex items-center bg-brand-navy-900 overflow-hidden pt-20">
       {/* Background Image with heavy overlay */}
@@ -52,7 +52,7 @@ const Hero: React.FC = () => {
             className="flex flex-col sm:flex-row gap-5"
           >
             <a 
-              href={WHATSAPP_LINK}
+              href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
               className="group px-8 py-5 bg-gold-gradient text-brand-navy-900 font-bold text-lg rounded-sm shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_40px_rgba(212,175,55,0.4)] transition-all flex items-center justify-center gap-3"

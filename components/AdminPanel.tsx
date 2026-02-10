@@ -1,12 +1,12 @@
 import { useState, useEffect, type FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, X, Upload, Save, Image as ImageIcon, Type, Phone, Mail, Instagram, MapPin, LogOut, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
+import { Lock, X, Upload, Save, Image as ImageIcon, Type, Phone, Mail, Instagram, MapPin, LogOut, Eye, EyeOff, Plus, Trash2, Star, Hash, MessageSquare } from 'lucide-react';
 import { ref, set, update, onValue } from 'firebase/database';
 import { ref as sRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { db, auth, storage } from '../firebase';
 import { useSiteData } from '../context/SiteContentContext';
-import { DEFAULT_CONTENT, type SiteContent, type BeforeAfterProject } from '../hooks/useSiteContent';
+import { DEFAULT_CONTENT, type SiteContent, type BeforeAfterProject, type Testimonial, type StatItem } from '../hooks/useSiteContent';
 
 
 
@@ -19,7 +19,7 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   const [error, setError] = useState('');
   const { content: currentContent, loading } = useSiteData();
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
-  const [activeTab, setActiveTab] = useState<'contact' | 'hero' | 'images'>('contact');
+  const [activeTab, setActiveTab] = useState<'contact' | 'hero' | 'images' | 'testimonials' | 'stats'>('contact');
   const [saveMessage, setSaveMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -127,6 +127,64 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
         }
         return p;
       })
+    }));
+  };
+
+  const addTestimonial = () => {
+    const newTestimonial: Testimonial = {
+      id: Date.now().toString(),
+      name: 'Nome do Cliente',
+      service: 'Serviço Prestado',
+      text: 'Excelente trabalho!',
+      rating: 5
+    };
+    setContent(prev => ({
+      ...prev,
+      testimonials: [...(prev.testimonials || []), newTestimonial]
+    }));
+  };
+
+  const removeTestimonial = (id: string) => {
+    if (confirm('Deseja remover este depoimento?')) {
+      setContent(prev => ({
+        ...prev,
+        testimonials: prev.testimonials.filter(t => t.id !== id)
+      }));
+    }
+  };
+
+  const updateTestimonial = (id: string, updates: Partial<Testimonial>) => {
+    setContent(prev => ({
+      ...prev,
+      testimonials: prev.testimonials.map(t => t.id === id ? { ...t, ...updates } : t)
+    }));
+  };
+
+  const addStat = () => {
+    const newStat: StatItem = {
+      id: Date.now().toString(),
+      value: '100+',
+      label: 'Novo Dado'
+    };
+    setContent(prev => ({
+      ...prev,
+      stats: [...(prev.stats || []), newStat]
+    }));
+  };
+
+  const removeStat = (id: string) => {
+    if (confirm('Deseja remover esta estatística?')) {
+      setContent(prev => ({
+        ...prev,
+        stats: prev.stats.filter(s => s.id !== id)
+      }));
+    }
+  };
+
+  const updateStat = (id: string, updates: Partial<StatItem>) => {
+    setContent(prev => ({
+      ...prev,
+      stats: prev.stats.map(s => s.id === id ? { ...s, ...updates } : s)
     }));
   };
 
@@ -313,6 +371,28 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
                 <ImageIcon size={18} />
                 Imagens
               </button>
+              <button
+                onClick={() => setActiveTab('testimonials')}
+                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                  activeTab === 'testimonials' 
+                    ? 'text-brand-gold border-b-2 border-brand-gold' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <MessageSquare size={18} />
+                Depoimentos
+              </button>
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                  activeTab === 'stats' 
+                    ? 'text-brand-gold border-b-2 border-brand-gold' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <Hash size={18} />
+                Estatísticas
+              </button>
             </div>
 
             {/* Contact Tab */}
@@ -403,6 +483,16 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
                       value={content.businessHours}
                       onChange={(e) => setContent(prev => ({ ...prev, businessHours: e.target.value }))}
                       className="w-full bg-brand-navy-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-gold transition-colors"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-gray-400 mb-2 block font-bold text-brand-gold">MENSAGEM PADRÃO WHATSAPP</label>
+                    <textarea
+                      value={content.whatsappMessage}
+                      onChange={(e) => setContent(prev => ({ ...prev, whatsappMessage: e.target.value }))}
+                      rows={2}
+                      className="w-full bg-brand-navy-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-gold transition-colors text-sm"
+                      placeholder="Ex: Olá! Gostaria de um orçamento..."
                     />
                   </div>
                 </div>
@@ -643,6 +733,136 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
                       <p className="text-gray-500 italic">Nenhum projeto adicionado. Clique no botão acima para começar!</p>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Testimonials Tab */}
+            {activeTab === 'testimonials' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                    <MessageSquare size={20} className="text-brand-gold" /> Gerenciar Depoimentos
+                  </h4>
+                  <button 
+                    onClick={addTestimonial}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-sm transition-all"
+                  >
+                    <Plus size={18} /> Adicionar Depoimento
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {content.testimonials && content.testimonials.map((testimonial, index) => (
+                    <div key={testimonial.id} className="p-6 bg-brand-navy-900/50 rounded-xl border border-white/10 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-brand-gold uppercase tracking-widest">Depoimento #{index + 1}</span>
+                        <button 
+                          onClick={() => removeTestimonial(testimonial.id)}
+                          className="text-gray-500 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Nome do Cliente</label>
+                            <input
+                              type="text"
+                              value={testimonial.name}
+                              onChange={(e) => updateTestimonial(testimonial.id, { name: e.target.value })}
+                              className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Serviço</label>
+                            <input
+                              type="text"
+                              value={testimonial.service}
+                              onChange={(e) => updateTestimonial(testimonial.id, { service: e.target.value })}
+                              className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Nota (1 a 5 estrelas)</label>
+                          <div className="flex gap-2">
+                            {[1,2,3,4,5].map(star => (
+                              <button 
+                                key={star}
+                                onClick={() => updateTestimonial(testimonial.id, { rating: star })}
+                                className={`p-1 transition-colors ${testimonial.rating >= star ? 'text-brand-gold' : 'text-gray-700'}`}
+                              >
+                                <Star size={20} fill={testimonial.rating >= star ? "currentColor" : "none"} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Depoimento</label>
+                          <textarea
+                            value={testimonial.text}
+                            onChange={(e) => updateTestimonial(testimonial.id, { text: e.target.value })}
+                            rows={3}
+                            className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stats Tab */}
+            {activeTab === 'stats' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                    <Hash size={20} className="text-brand-gold" /> Estatísticas e Números
+                  </h4>
+                  <button 
+                    onClick={addStat}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-sm transition-all"
+                  >
+                    <Plus size={18} /> Adicionar Estatística
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {content.stats && content.stats.map((stat) => (
+                    <div key={stat.id} className="p-4 bg-brand-navy-900/50 rounded-xl border border-white/10 space-y-4">
+                      <div className="flex justify-end">
+                        <button 
+                          onClick={() => removeStat(stat.id)}
+                          className="text-gray-500 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1 text-center">Valor (ex: 500+)</label>
+                          <input
+                            type="text"
+                            value={stat.value}
+                            onChange={(e) => updateStat(stat.id, { value: e.target.value })}
+                            className="w-full bg-brand-navy-900 border border-brand-gold/20 rounded px-3 py-3 text-xl font-bold text-center text-brand-gold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-gray-500 font-bold uppercase block mb-1 text-center">Rótulo (ex: Clientes)</label>
+                          <input
+                            type="text"
+                            value={stat.label}
+                            onChange={(e) => updateStat(stat.id, { label: e.target.value })}
+                            className="w-full bg-brand-navy-900 border border-white/10 rounded px-2 py-1.5 text-xs text-center text-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

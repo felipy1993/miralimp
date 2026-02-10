@@ -10,11 +10,26 @@ export interface BeforeAfterProject {
   description: string;
 }
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  service: string;
+  text: string;
+  rating: number;
+}
+
+export interface StatItem {
+  id: string;
+  value: string;
+  label: string;
+}
+
 export interface SiteContent {
   // Informações de Contato
   companyName: string;
   companySubtitle: string;
   whatsappNumber: string;
+  whatsappMessage: string;
   phoneDisplay: string;
   email: string;
   region: string;
@@ -35,6 +50,12 @@ export interface SiteContent {
   // Lista Dinâmica de Projetos
   projects: BeforeAfterProject[];
 
+  // Depoimentos Dinâmicos
+  testimonials: Testimonial[];
+
+  // Estatísticas / Números
+  stats: StatItem[];
+
   // Antigos campos (manter temporariamente para evitar erros de tipagem durante a migração)
   beforeAfter1Before?: string;
   beforeAfter1After?: string;
@@ -50,6 +71,7 @@ export const DEFAULT_CONTENT: SiteContent = {
   companyName: "Miralimp",
   companySubtitle: "Higienização de Estofados",
   whatsappNumber: "5517992265090",
+  whatsappMessage: "Olá! Gostaria de um orçamento para higienização de estofado.",
   phoneDisplay: "(17) 99226-5090",
   email: "contato@miralimp.com.br",
   region: "Mirassol e Região",
@@ -80,6 +102,37 @@ export const DEFAULT_CONTENT: SiteContent = {
       title: "Higienização de Conjunto de Jantar",
       description: "Eliminação de ácaros e revitalização profunda do tecido."
     }
+  ],
+
+  testimonials: [
+    {
+      id: '1',
+      name: 'Ana Paula Silva',
+      service: 'Limpeza de Sofá',
+      text: 'A Miralimp salvou meu sofá! Estava pensando em trocar, mas a limpeza deixou novo de novo. Recomendo demais!',
+      rating: 5
+    },
+    {
+      id: '2',
+      name: 'Carlos Eduardo',
+      service: 'Bancos de Carro',
+      text: 'Serviço impecável. Atenderam em casa, super pontuais e o carro ficou com cheiro de novo.',
+      rating: 5
+    },
+    {
+      id: '3',
+      name: 'Juliana Martins',
+      service: 'Colchão King',
+      text: 'Melhor investimento para a saúde. A quantidade de sujeira que saiu do colchão foi assustadora. Parabéns pelo trabalho!',
+      rating: 5
+    }
+  ],
+
+  stats: [
+    { id: '1', value: '500+', label: 'Estofados Higienizados' },
+    { id: '2', value: '300+', label: 'Clientes Satisfeitos' },
+    { id: '3', value: '5', label: 'Anos de Experiência' },
+    { id: '4', value: '100%', label: 'Satisfação Garantida' }
   ]
 };
 

@@ -2,6 +2,7 @@ import { useState, useEffect, type FC } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import Stats from './components/Stats';
 import WhyChooseUs from './components/WhyChooseUs';
 import BeforeAfter from './components/BeforeAfter';
 import Testimonials from './components/Testimonials';
@@ -37,6 +38,7 @@ const AppContent: FC = () => {
       <main className="flex-grow">
         <Hero />
         <Services />
+        <Stats />
         <div id="diferenciais">
           <WhyChooseUs />
         </div>

@@ -4,7 +4,7 @@ import { useSiteData } from '../context/SiteContentContext';
 
 const FloatingWhatsApp: FC = () => {
   const { content } = useSiteData();
-  const whatsappLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}`;
+  const whatsappLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(content.whatsappMessage || '')}`;
 
   return (
     <motion.a

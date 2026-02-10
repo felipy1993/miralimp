@@ -8,7 +8,7 @@ interface FooterProps {
 
 const Footer: FC<FooterProps> = ({ onAdminClick }) => {
   const { content } = useSiteData();
-  const phoneLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}`;
+  const phoneLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(content.whatsappMessage || '')}`;
 
   return (
     <footer className="bg-brand-black text-gray-400 pt-20 pb-10 border-t border-brand-navy-900">

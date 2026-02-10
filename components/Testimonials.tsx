@@ -1,9 +1,12 @@
 import React from 'react';
-import { TESTIMONIALS } from '../constants';
 import { Star, Quote } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSiteData } from '../context/SiteContentContext';
 
 const Testimonials: React.FC = () => {
+  const { content } = useSiteData();
+  const testimonials = content.testimonials || [];
+
   return (
     <section id="depoimentos" className="py-24 bg-brand-black text-white relative overflow-hidden">
       {/* Glow effects */}
@@ -16,7 +19,7 @@ const Testimonials: React.FC = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {TESTIMONIALS.map((testimonial, index) => (
+          {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -30,7 +33,7 @@ const Testimonials: React.FC = () => {
               </div>
               
               <div className="flex gap-1 mb-6 mt-2">
-                {[...Array(testimonial.rating)].map((_, i) => (
+                {[...Array(testimonial.rating || 5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 text-brand-gold fill-brand-gold" />
                 ))}
               </div>
@@ -51,6 +54,12 @@ const Testimonials: React.FC = () => {
             </motion.div>
           ))}
         </div>
+
+        {testimonials.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            Nenhum depoimento cadastrado ainda.
+          </div>
+        )}
       </div>
     </section>
   );
