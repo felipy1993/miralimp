@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { ref, onValue, set } from 'firebase/database';
 import { db } from '../firebase';
 
+export interface BeforeAfterProject {
+  id: string;
+  before: string;
+  after: string;
+  title: string;
+  description: string;
+}
+
 export interface SiteContent {
   // Informações de Contato
   companyName: string;
@@ -18,19 +26,24 @@ export interface SiteContent {
   heroSubtitle: string;
   heroDescription: string;
   
-  // Imagens
+  // Imagens (salvas como URLs)
   heroImage: string;
   logoImage: string;
   whyChooseUsImage: string;
   whyChooseUsQuote: string;
-  beforeAfter1Before: string;
-  beforeAfter1After: string;
-  beforeAfter1Title: string;
-  beforeAfter1Description: string;
-  beforeAfter2Before: string;
-  beforeAfter2After: string;
-  beforeAfter2Title: string;
-  beforeAfter2Description: string;
+
+  // Lista Dinâmica de Projetos
+  projects: BeforeAfterProject[];
+
+  // Antigos campos (manter temporariamente para evitar erros de tipagem durante a migração)
+  beforeAfter1Before?: string;
+  beforeAfter1After?: string;
+  beforeAfter1Title?: string;
+  beforeAfter1Description?: string;
+  beforeAfter2Before?: string;
+  beforeAfter2After?: string;
+  beforeAfter2Title?: string;
+  beforeAfter2Description?: string;
 }
 
 export const DEFAULT_CONTENT: SiteContent = {
@@ -51,14 +64,23 @@ export const DEFAULT_CONTENT: SiteContent = {
   logoImage: "/logo.png",
   whyChooseUsImage: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80",
   whyChooseUsQuote: "Higienizar é um ato de carinho com sua família.",
-  beforeAfter1Before: "https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  beforeAfter1After: "https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  beforeAfter1Title: "Restauração de Sofá Retrátil",
-  beforeAfter1Description: "Remoção total de manchas de uso e recuperação da cor original.",
-  beforeAfter2Before: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  beforeAfter2After: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-  beforeAfter2Title: "Higienização de Conjunto de Jantar",
-  beforeAfter2Description: "Eliminação de ácaros e revitalização profunda do tecido.",
+  
+  projects: [
+    {
+      id: '1',
+      before: "https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      after: "https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      title: "Restauração de Sofá Retrátil",
+      description: "Remoção total de manchas de uso e recuperação da cor original."
+    },
+    {
+      id: '2',
+      before: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      after: "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      title: "Higienização de Conjunto de Jantar",
+      description: "Eliminação de ácaros e revitalização profunda do tecido."
+    }
+  ]
 };
 
 export const useSiteContent = () => {
@@ -84,17 +106,17 @@ export const useSiteContent = () => {
       
       if (data) {
         setContent(data);
+        setLoading(false); // Garante que o loading saia assim que tiver dados
       } else {
         console.log("Banco vazio. Inicializando com padrões...");
         set(contentRef, DEFAULT_CONTENT).catch(err => {
           console.error("Erro ao inicializar banco:", err);
         });
       }
-      setLoading(false);
       clearTimeout(timeout);
     }, (error) => {
       console.error("Erro na conexão com Firebase:", error);
-      setLoading(false); // Destrava o loading mesmo com erro
+      setLoading(false);
       clearTimeout(timeout);
     });
 

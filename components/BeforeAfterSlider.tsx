@@ -57,6 +57,9 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
         src={afterImg} 
         alt="Depois" 
         className="absolute inset-0 w-full h-full object-cover"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&q=80&w=800';
+        }}
       />
       
       {/* Before image (Clipped) */}
@@ -69,6 +72,9 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
           alt="Antes" 
           className="absolute inset-0 w-full h-full object-cover filter contrast-125 saturate-50 brightness-90"
           style={{ width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%' }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&q=80&w=800';
+          }}
         />
       </div>
 

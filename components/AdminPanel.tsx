@@ -1,43 +1,14 @@
 import { useState, useEffect, type FC } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, X, Upload, Save, Image as ImageIcon, Type, Phone, Mail, Instagram, MapPin, LogOut, Eye, EyeOff } from 'lucide-react';
-import { ref, set } from 'firebase/database';
+import { Lock, X, Upload, Save, Image as ImageIcon, Type, Phone, Mail, Instagram, MapPin, LogOut, Eye, EyeOff, Plus, Trash2 } from 'lucide-react';
+import { ref, set, update, onValue } from 'firebase/database';
+import { ref as sRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, auth, storage } from '../firebase';
 import { useSiteData } from '../context/SiteContentContext';
-import { DEFAULT_CONTENT } from '../hooks/useSiteContent';
+import { DEFAULT_CONTENT, type SiteContent, type BeforeAfterProject } from '../hooks/useSiteContent';
 
-interface SiteContent {
-  // Informações de Contato
-  companyName: string;
-  companySubtitle: string;
-  whatsappNumber: string;
-  phoneDisplay: string;
-  email: string;
-  region: string;
-  instagramLink: string;
-  businessHours: string;
-  
-  // Hero Section
-  heroTitle: string;
-  heroSubtitle: string;
-  heroDescription: string;
-  
-  // Imagens
-  heroImage: string;
-  logoImage: string;
-  whyChooseUsImage: string;
-  whyChooseUsQuote: string;
-  beforeAfter1Before: string;
-  beforeAfter1After: string;
-  beforeAfter1Title: string;
-  beforeAfter1Description: string;
-  beforeAfter2Before: string;
-  beforeAfter2After: string;
-  beforeAfter2Title: string;
-  beforeAfter2Description: string;
-}
+
 
 const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,7 +22,9 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   const [activeTab, setActiveTab] = useState<'contact' | 'hero' | 'images'>('contact');
   const [saveMessage, setSaveMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [imageUploading, setImageUploading] = useState<string | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
 
   // Escutar estado de autenticação do Firebase
   useEffect(() => {
@@ -67,10 +40,27 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   }, []);
 
   useEffect(() => {
-    if (!loading && currentContent) {
-      setContent(currentContent);
+    // Monitorar conexão com o Firebase
+    const connectedRef = ref(db, ".info/connected");
+    const unsubConn = onValue(connectedRef, (snap) => {
+      setIsConnected(snap.val() === true);
+    });
+
+    // Só sincroniza o estado local com o banco na PRIMEIRA vez que carrega
+    if (!loading && currentContent && !hasInitialized) {
+      // Sanitiza todos os links que já estão no banco ao carregar
+      const sanitizedData = { ...currentContent };
+      (Object.keys(sanitizedData) as Array<keyof SiteContent>).forEach(key => {
+        if (typeof sanitizedData[key] === 'string' && (sanitizedData[key] as string).includes('drive.google.com')) {
+          (sanitizedData[key] as any) = sanitizeUrl(sanitizedData[key] as string);
+        }
+      });
+      setContent(sanitizedData);
+      setHasInitialized(true);
     }
-  }, [currentContent, loading]);
+
+    return () => unsubConn();
+  }, [currentContent, loading, hasInitialized]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +72,67 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
       setError('E-mail ou senha incorretos!');
     }
   };
+
+  const sanitizeUrl = (url: string) => {
+    if (!url) return '';
+    // Se for Google Drive link de compartilhamento comum
+    if (url.includes('drive.google.com')) {
+      // Pega o ID entre /d/ e a próxima barra ou fim da linha
+      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+      }
+    }
+    return url;
+  };
+
+  const handleUrlChange = (field: keyof SiteContent, value: string) => {
+    const sanitized = sanitizeUrl(value);
+    setContent(prev => ({ ...prev, [field]: sanitized }));
+  };
+
+  const addProject = () => {
+    const newProject: BeforeAfterProject = {
+      id: Date.now().toString(),
+      before: '',
+      after: '',
+      title: 'Meu Novo Projeto',
+      description: ''
+    };
+    setContent(prev => ({
+      ...prev,
+      projects: [...(prev.projects || []), newProject]
+    }));
+  };
+
+  const removeProject = (id: string) => {
+    if (confirm('Tem certeza que deseja apagar este projeto de Antes/Depois?')) {
+      setContent(prev => ({
+        ...prev,
+        projects: prev.projects.filter(p => p.id !== id)
+      }));
+    }
+  };
+
+  const updateProject = (id: string, updates: Partial<BeforeAfterProject>) => {
+    setContent(prev => ({
+      ...prev,
+      projects: prev.projects.map(p => {
+        if (p.id === id) {
+          const updated = { ...p, ...updates };
+          // Sanitizar URLs se forem passadas
+          if (updates.before) updated.before = sanitizeUrl(updates.before);
+          if (updates.after) updated.after = sanitizeUrl(updates.after);
+          return updated;
+        }
+        return p;
+      })
+    }));
+  };
+
+  // Removido handleImageUpload devido a restrições de CORS no Firebase Storage do usuário
+  // Mantemos o estado de upload apenas para não quebrar referências visuais se necessário
+  const [isExternalLinkOpen, setIsExternalLinkOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -95,72 +146,35 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   const handleSave = async () => {
     if (isSaving) return;
     
+    // Alerta se não houver conexão
+    if (!isConnected) {
+      setSaveMessage('❌ Sem conexão com o Firebase (Aguardando...)');
+      // Não bloqueia o salvamento pois o Firebase pode estar em modo offline, 
+      // mas avisa o usuário porque pode ser por isso que está travado.
+    }
+    
     try {
       setIsSaving(true);
-      setSaveMessage('⏳ Analisando alterações...');
+      setSaveMessage('⏳ Salvando...');
       
-      // Criar um objeto apenas com o que realmente mudou
-      const updates: any = {};
-      let hasChanges = false;
-
-      (Object.keys(content) as Array<keyof SiteContent>).forEach(key => {
-        if (content[key] !== currentContent?.[key]) {
-          updates[key] = content[key];
-          hasChanges = true;
-        }
-      });
-
-      if (!hasChanges) {
-        setSaveMessage('ℹ️ Nenhuma alteração detectada.');
-        setTimeout(() => setSaveMessage(''), 3000);
-        setIsSaving(false);
-        return;
-      }
-
-      setSaveMessage(`🚀 Salvando ${Object.keys(updates).length} alteração(ões)...`);
-      
-      const { update } = await import('firebase/database');
       const contentRef = ref(db, 'site_content');
-      await update(contentRef, updates);
       
-      setSaveMessage('✅ Atualizado com sucesso!');
+      // Criar um timeout de 15 segundos para o salvamento
+      const savePromise = set(contentRef, content);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Tempo limite excedido: O Firebase não respondeu em 15 segundos.')), 15000)
+      );
+
+      await Promise.race([savePromise, timeoutPromise]);
       
-      setTimeout(() => {
-        setSaveMessage('');
-      }, 3000);
-    } catch (e) {
+      setSaveMessage('✅ Salvo!');
+      setTimeout(() => setSaveMessage(''), 3000);
+    } catch (e: any) {
       console.error('Erro ao salvar:', e);
-      setSaveMessage('❌ Erro ao salvar: Verifique sua conexão.');
+      setSaveMessage(`❌ ${e.message || 'Erro de conexão'}`);
+      setTimeout(() => setSaveMessage(''), 5000);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleImageUpload = async (field: keyof SiteContent, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("A imagem é muito grande! Escolha uma imagem de até 2MB.");
-        return;
-      }
-
-      try {
-        setImageUploading(field);
-        setSaveMessage('⬆️ Fazendo upload da imagem...');
-        
-        const fileRef = storageRef(storage, `site/${field}_${Date.now()}`);
-        await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(fileRef);
-        
-        setContent(prev => ({ ...prev, [field]: url }));
-        setSaveMessage('✅ Imagem pronta para salvar!');
-        setTimeout(() => setSaveMessage(''), 3000);
-      } catch (err) {
-        console.error("Erro no upload:", err);
-        setSaveMessage('❌ Erro ao enviar imagem.');
-      } finally {
-        setImageUploading(null);
-      }
     }
   };
 
@@ -248,7 +262,12 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
               <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/5">
                 <div>
                   <h2 className="text-3xl font-bold text-white font-serif">Painel de Controle</h2>
-                  <p className="text-gray-400">Gerencie todo o conteúdo do site</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 animate-pulse'}`}></div>
+                    <span className="text-xs text-gray-400 font-medium">
+                      {isConnected ? 'Conectado ao Firebase' : 'Desconectado / Reconectando...'}
+                    </span>
+                  </div>
                 </div>
                 <button 
                   onClick={handleLogout}
@@ -426,48 +445,68 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
             {/* Images Tab */}
             {activeTab === 'images' && (
               <div className="space-y-8">
+                <div className="p-4 bg-brand-navy-800/80 border border-brand-gold/30 rounded-lg">
+                  <h4 className="text-brand-gold font-bold text-sm mb-2 flex items-center gap-2">
+                    <ImageIcon size={16} /> Como Adicionar Fotos
+                  </h4>
+                  <div className="text-xs text-gray-400 space-y-2 leading-relaxed">
+                    <p>
+                      Para garantir que as fotos nunca apaguem e funcionem sempre, use o site <strong>PostImages.org</strong>:
+                    </p>
+                    <ol className="list-decimal list-inside space-y-1 ml-1">
+                      <li>Clique no botão dourado <strong>"Ir para PostImages"</strong> abaixo.</li>
+                      <li>Suba sua foto do computador ou celular.</li>
+                      <li>Após carregar, copie o link que diz <strong>"Link direto"</strong>.</li>
+                      <li>Cole o link no campo correspondente aqui no painel e clique em <strong>Salvar</strong>.</li>
+                    </ol>
+                  </div>
+                  <a 
+                    href="https://postimages.org/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-brand-gold text-brand-navy-900 rounded font-bold text-xs hover:scale-105 transition-all"
+                  >
+                    <Upload size={14} />
+                    Ir para PostImages.org
+                  </a>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Hero Image */}
                   <div className="space-y-3">
                     <label className="text-sm text-gray-400 block">Imagem de Fundo (Hero)</label>
-                    <div className="relative">
+                    <div className="relative group">
                       <img src={content.heroImage} alt="Hero" className="w-full h-40 object-cover rounded-lg border border-white/10" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1 uppercase tracking-wider font-bold">Link da Imagem</label>
                       <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload('heroImage', e)}
-                        className="hidden"
-                        id="heroImage"
+                        type="url"
+                        value={content.heroImage}
+                        onChange={(e) => handleUrlChange('heroImage', e.target.value)}
+                        placeholder="Cole o link direto aqui..."
+                        className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-gold transition-colors"
                       />
-                      <label
-                        htmlFor="heroImage"
-                        className="absolute bottom-2 right-2 bg-brand-gold text-brand-navy-900 px-3 py-1 rounded text-xs font-bold cursor-pointer hover:shadow-lg transition-all"
-                      >
-                        Trocar
-                      </label>
                     </div>
                   </div>
 
                   {/* Logo */}
                   <div className="space-y-3">
                     <label className="text-sm text-gray-400 block">Logo</label>
-                    <div className="relative">
-                      <div className="w-full h-40 bg-brand-navy-900 rounded-lg border border-white/10 flex items-center justify-center">
-                        <img src={content.logoImage} alt="Logo" className="max-h-32 object-contain" />
+                    <div className="relative group">
+                      <div className="w-full h-40 bg-brand-navy-900 rounded-lg border border-white/10 flex items-center justify-center p-4">
+                        <img src={content.logoImage} alt="Logo" className="max-h-full max-w-full object-contain" />
                       </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1 uppercase tracking-wider font-bold">Link da Logo</label>
                       <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload('logoImage', e)}
-                        className="hidden"
-                        id="logoImage"
+                        type="url"
+                        value={content.logoImage}
+                        onChange={(e) => handleUrlChange('logoImage', e.target.value)}
+                        placeholder="Cole o link direto aqui..."
+                        className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-gold transition-colors"
                       />
-                      <label
-                        htmlFor="logoImage"
-                        className="absolute bottom-2 right-2 bg-brand-gold text-brand-navy-900 px-3 py-1 rounded text-xs font-bold cursor-pointer hover:shadow-lg transition-all"
-                      >
-                        Trocar
-                      </label>
                     </div>
                   </div>
                 </div>
@@ -478,21 +517,18 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <label className="text-sm text-gray-400 block">Imagem da Seção</label>
-                      <div className="relative">
+                      <div className="relative group">
                         <img src={content.whyChooseUsImage} alt="Why Choose Us" className="w-full h-40 object-cover rounded-lg border border-white/10" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 block mb-1 uppercase tracking-wider font-bold">Link da Imagem Section</label>
                         <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload('whyChooseUsImage', e)}
-                          className="hidden"
-                          id="whyChooseUsImage"
+                          type="url"
+                          value={content.whyChooseUsImage}
+                          onChange={(e) => handleUrlChange('whyChooseUsImage', e.target.value)}
+                          placeholder="Cole o link direto aqui..."
+                          className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-gold transition-colors"
                         />
-                        <label
-                          htmlFor="whyChooseUsImage"
-                          className="absolute bottom-2 right-2 bg-brand-gold text-brand-navy-900 px-3 py-1 rounded text-xs font-bold cursor-pointer hover:shadow-lg transition-all"
-                        >
-                          Trocar
-                        </label>
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -509,110 +545,104 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
                   </div>
                 </div>
 
-                {/* Before/After Project 1 */}
-                <div className="p-6 bg-brand-navy-900/50 rounded-xl border border-white/5 space-y-4">
-                  <h4 className="text-white font-bold">Projeto Antes/Depois #1</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-gray-500 uppercase">Imagem Antes</label>
-                      <div className="relative">
-                        <img src={content.beforeAfter1Before} alt="Antes" className="w-full h-32 object-cover rounded border border-white/10" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload('beforeAfter1Before', e)}
-                          className="hidden"
-                          id="ba1Before"
-                        />
-                        <label htmlFor="ba1Before" className="absolute bottom-1 right-1 bg-brand-gold text-brand-navy-900 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">
-                          Trocar
-                        </label>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-gray-500 uppercase">Imagem Depois</label>
-                      <div className="relative">
-                        <img src={content.beforeAfter1After} alt="Depois" className="w-full h-32 object-cover rounded border border-white/10" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload('beforeAfter1After', e)}
-                          className="hidden"
-                          id="ba1After"
-                        />
-                        <label htmlFor="ba1After" className="absolute bottom-1 right-1 bg-brand-gold text-brand-navy-900 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">
-                          Trocar
-                        </label>
-                      </div>
-                    </div>
+                {/* Dynamic Before/After Projects */}
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                      <ImageIcon size={20} className="text-brand-gold" /> Galeria de Resultados (Antes e Depois)
+                    </h4>
+                    <button 
+                      onClick={addProject}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-sm transition-all"
+                    >
+                      <Plus size={18} /> Adicionar Novo Caso
+                    </button>
                   </div>
-                  <input
-                    type="text"
-                    value={content.beforeAfter1Title}
-                    onChange={(e) => setContent(prev => ({ ...prev, beforeAfter1Title: e.target.value }))}
-                    placeholder="Título do Projeto"
-                    className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
-                  />
-                  <textarea
-                    value={content.beforeAfter1Description}
-                    onChange={(e) => setContent(prev => ({ ...prev, beforeAfter1Description: e.target.value }))}
-                    placeholder="Descrição"
-                    rows={2}
-                    className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
-                  />
-                </div>
+                  
+                  <div className="grid grid-cols-1 gap-8">
+                    {content.projects && content.projects.map((project, index) => (
+                      <div key={project.id} className="p-6 bg-brand-navy-900/50 rounded-xl border border-brand-gold/20 space-y-4 relative group">
+                        <div className="flex justify-between items-start">
+                          <span className="text-brand-gold font-bold text-xs uppercase tracking-widest">Projeto #{index + 1}</span>
+                          <button 
+                            onClick={() => removeProject(project.id)}
+                            className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                            title="Remover Projeto"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
 
-                {/* Before/After Project 2 */}
-                <div className="p-6 bg-brand-navy-900/50 rounded-xl border border-white/5 space-y-4">
-                  <h4 className="text-white font-bold">Projeto Antes/Depois #2</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-gray-500 uppercase">Imagem Antes</label>
-                      <div className="relative">
-                        <img src={content.beforeAfter2Before} alt="Antes" className="w-full h-32 object-cover rounded border border-white/10" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload('beforeAfter2Before', e)}
-                          className="hidden"
-                          id="ba2Before"
-                        />
-                        <label htmlFor="ba2Before" className="absolute bottom-1 right-1 bg-brand-gold text-brand-navy-900 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">
-                          Trocar
-                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-xs text-gray-400 block mb-1 font-bold">TÍTULO</label>
+                              <input
+                                type="text"
+                                value={project.title}
+                                onChange={(e) => updateProject(project.id, { title: e.target.value })}
+                                placeholder="Ex: Restauração de Sofá de Couro"
+                                className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-brand-gold outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-gray-400 block mb-1 font-bold">DESCRIÇÃO</label>
+                              <textarea
+                                value={project.description}
+                                onChange={(e) => updateProject(project.id, { description: e.target.value })}
+                                placeholder="Descreva o que foi feito..."
+                                rows={3}
+                                className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:border-brand-gold outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-xs text-gray-500 uppercase font-bold">Link Antes (PostImages)</label>
+                              <div className="h-24 bg-black/20 rounded border border-white/5 overflow-hidden">
+                                {project.before ? (
+                                  <img src={project.before} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-600">Sem Foto</div>
+                                )}
+                              </div>
+                              <input
+                                type="url"
+                                value={project.before}
+                                onChange={(e) => updateProject(project.id, { before: e.target.value })}
+                                placeholder="Cole o link aqui"
+                                className="w-full bg-brand-navy-900 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs text-gray-500 uppercase font-bold">Link Depois (PostImages)</label>
+                              <div className="h-24 bg-black/20 rounded border border-white/5 overflow-hidden">
+                                {project.after ? (
+                                  <img src={project.after} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-600">Sem Foto</div>
+                                )}
+                              </div>
+                              <input
+                                type="url"
+                                value={project.after}
+                                onChange={(e) => updateProject(project.id, { after: e.target.value })}
+                                placeholder="Cole o link aqui"
+                                className="w-full bg-brand-navy-900 border border-white/10 rounded px-2 py-1.5 text-[11px] text-white"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-gray-500 uppercase">Imagem Depois</label>
-                      <div className="relative">
-                        <img src={content.beforeAfter2After} alt="Depois" className="w-full h-32 object-cover rounded border border-white/10" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload('beforeAfter2After', e)}
-                          className="hidden"
-                          id="ba2After"
-                        />
-                        <label htmlFor="ba2After" className="absolute bottom-1 right-1 bg-brand-gold text-brand-navy-900 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer">
-                          Trocar
-                        </label>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                  <input
-                    type="text"
-                    value={content.beforeAfter2Title}
-                    onChange={(e) => setContent(prev => ({ ...prev, beforeAfter2Title: e.target.value }))}
-                    placeholder="Título do Projeto"
-                    className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
-                  />
-                  <textarea
-                    value={content.beforeAfter2Description}
-                    onChange={(e) => setContent(prev => ({ ...prev, beforeAfter2Description: e.target.value }))}
-                    placeholder="Descrição"
-                    rows={2}
-                    className="w-full bg-brand-navy-900 border border-white/10 rounded px-3 py-2 text-sm text-white"
-                  />
+
+                  {(!content.projects || content.projects.length === 0) && (
+                    <div className="text-center py-12 border-2 border-dashed border-white/5 rounded-xl">
+                      <p className="text-gray-500 italic">Nenhum projeto adicionado. Clique no botão acima para começar!</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

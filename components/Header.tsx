@@ -36,7 +36,7 @@ const Header: FC = () => {
         <a href="#" className="flex items-center gap-4 group cursor-pointer">
           <div className="relative w-12 h-12 md:w-14 md:h-14">
             <img 
-              src="/logo.png" 
+              src={content.logoImage} 
               alt="Miralimp Logo" 
               className="w-full h-full object-contain relative z-10 group-hover:scale-110 transition-transform duration-500 shadow-2xl rounded-full bg-brand-navy-800 border border-brand-gold/30"
             />
@@ -44,11 +44,11 @@ const Header: FC = () => {
           </div>
           <div className="flex flex-col">
             <div className="text-2xl md:text-3xl font-bold tracking-tight font-serif">
-              <span className="text-white group-hover:text-gray-200 transition-colors">Mira</span>
-              <span className="text-transparent bg-clip-text bg-gold-gradient">limp</span>
+              <span className="text-white group-hover:text-gray-200 transition-colors">{content.companyName.split(' ')[0]}</span>
+              <span className="text-transparent bg-clip-text bg-gold-gradient">{content.companyName.split(' ').slice(1).join(' ')}</span>
             </div>
             <span className="text-[10px] md:text-xs text-brand-gold/80 uppercase tracking-[0.2em]">
-              {COMPANY_SUBTITLE}
+              {content.companySubtitle}
             </span>
           </div>
         </a>

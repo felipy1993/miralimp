@@ -1,11 +1,14 @@
 import { type FC } from 'react';
-import { WHATSAPP_LINK } from '../constants';
 import { motion } from 'framer-motion';
+import { useSiteData } from '../context/SiteContentContext';
 
 const FloatingWhatsApp: FC = () => {
+  const { content } = useSiteData();
+  const whatsappLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}`;
+
   return (
     <motion.a
-      href={WHATSAPP_LINK}
+      href={whatsappLink}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-[#25D366] text-white rounded-full shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:shadow-[0_0_30px_rgba(37,211,102,0.6)] transition-all overflow-visible group"

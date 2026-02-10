@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import BeforeAfterSlider from './BeforeAfterSlider';
+import { useSiteData } from '../context/SiteContentContext';
 
 const BeforeAfter: React.FC = () => {
+  const { content } = useSiteData();
   return (
     <section id="resultados" className="py-24 bg-brand-navy-900 relative overflow-hidden">
       <div className="absolute inset-0 bg-brand-navy-800/20"></div>
@@ -19,41 +21,34 @@ const BeforeAfter: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Case 1 */}
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="flex flex-col gap-6"
-            >
-                <BeforeAfterSlider 
-                    beforeImg="https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    afterImg="https://images.unsplash.com/photo-1540574163026-643ea20ade25?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                />
-                <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">
-                    <h4 className="font-bold text-xl text-white font-serif">Restauração de Sofá Retrátil</h4>
-                    <p className="text-sm text-gray-400 mt-2">Remoção total de manchas de uso e recuperação da cor original.</p>
-                </div>
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {content.projects && content.projects.map((project, index) => (
+              <motion.div 
+                  key={project.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex flex-col gap-6"
+              >
+                  <div className="rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-brand-navy-800">
+                    <BeforeAfterSlider 
+                        beforeImg={project.before}
+                        afterImg={project.after}
+                    />
+                  </div>
+                  <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">
+                      <h4 className="font-bold text-xl text-white font-serif">{project.title}</h4>
+                      <p className="text-sm text-gray-400 mt-2">{project.description}</p>
+                  </div>
+              </motion.div>
+            ))}
 
-            {/* Case 2 */}
-            <motion.div 
-                 initial={{ opacity: 0, scale: 0.95 }}
-                 whileInView={{ opacity: 1, scale: 1 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: 0.2 }}
-                 className="flex flex-col gap-6"
-            >
-                <BeforeAfterSlider 
-                    beforeImg="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    afterImg="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                />
-                <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">
-                    <h4 className="font-bold text-xl text-white font-serif">Higienização de Conjunto de Jantar</h4>
-                    <p className="text-sm text-gray-400 mt-2">Eliminação de ácaros e revitalização profunda do tecido.</p>
-                </div>
-            </motion.div>
+            {(!content.projects || content.projects.length === 0) && (
+              <div className="col-span-full text-center py-12 text-gray-500">
+                Aguardando a inserção de novos resultados...
+              </div>
+            )}
         </div>
       </div>
     </section>

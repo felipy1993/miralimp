@@ -1,12 +1,15 @@
 import { type FC } from 'react';
-import { COMPANY_NAME, REGION, INSTAGRAM_LINK, PHONE_DISPLAY, PHONE_LINK } from '../constants';
 import { Instagram, MapPin, Phone, Clock, Mail, Settings } from 'lucide-react';
+import { useSiteData } from '../context/SiteContentContext';
 
 interface FooterProps {
   onAdminClick?: () => void;
 }
 
 const Footer: FC<FooterProps> = ({ onAdminClick }) => {
+  const { content } = useSiteData();
+  const phoneLink = `https://wa.me/${content.whatsappNumber.replace(/\D/g, '')}`;
+
   return (
     <footer className="bg-brand-black text-gray-400 pt-20 pb-10 border-t border-brand-navy-900">
       <div className="container mx-auto px-4">
@@ -14,17 +17,17 @@ const Footer: FC<FooterProps> = ({ onAdminClick }) => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
              <div className="flex items-center gap-3 mb-6">
-                <img src="/logo.png" alt="Miralimp Logo" className="w-10 h-10 object-contain rounded-full border border-brand-gold/30 bg-brand-navy-900" />
+                <img src={content.logoImage} alt="Logo" className="w-10 h-10 object-contain rounded-full border border-brand-gold/30 bg-brand-navy-900" />
                 <div className="text-2xl font-bold tracking-tight font-serif text-white">
-                    Mira<span className="text-brand-gold">limp</span>
+                    {content.companyName.split(' ')[0]}<span className="text-brand-gold">{content.companyName.split(' ').slice(1).join(' ')}</span>
                 </div>
              </div>
              <p className="text-sm leading-relaxed mb-6 text-gray-500">
-               Referência em higienização de estofados em Mirassol e Região. Comprometidos com a excelência e a satisfação total de nossos clientes.
+               Referência em higienização de estofados em {content.region}. Comprometidos com a excelência e a satisfação total de nossos clientes.
              </p>
              <div className="flex gap-4">
                <a 
-                href={INSTAGRAM_LINK} 
+                href={content.instagramLink} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:border-brand-gold hover:text-brand-gold transition-all"
@@ -55,8 +58,8 @@ const Footer: FC<FooterProps> = ({ onAdminClick }) => {
                   <Phone className="w-5 h-5 text-brand-gold shrink-0" />
                   <div>
                     <span className="block text-white mb-1">Telefone / WhatsApp</span>
-                    <a href={PHONE_LINK} className="hover:text-brand-gold transition-colors font-medium">
-                      {PHONE_DISPLAY}
+                    <a href={phoneLink} target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition-colors font-medium">
+                      {content.phoneDisplay}
                     </a>
                   </div>
                 </li>
@@ -64,23 +67,23 @@ const Footer: FC<FooterProps> = ({ onAdminClick }) => {
                   <Mail className="w-5 h-5 text-brand-gold shrink-0" />
                   <div>
                     <span className="block text-white mb-1">Email</span>
-                    <span>contato@miralimp.com.br</span>
+                    <span>{content.email}</span>
                   </div>
                 </li>
               </ul>
               <ul className="space-y-4 text-sm">
-                 <li className="flex items-start gap-3">
+                <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-brand-gold shrink-0" />
                   <div>
                     <span className="block text-white mb-1">Localização</span>
-                    <span>{REGION}</span>
+                    <span>{content.region}</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-brand-gold shrink-0" />
                   <div>
                     <span className="block text-white mb-1">Horário</span>
-                    <span>Seg-Sáb: 08:00 - 18:00</span>
+                    <span>{content.businessHours}</span>
                   </div>
                 </li>
               </ul>
@@ -90,7 +93,7 @@ const Footer: FC<FooterProps> = ({ onAdminClick }) => {
 
         <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
           <div className="flex items-center gap-4">
-            <p>&copy; {new Date().getFullYear()} {COMPANY_NAME}. Todos os direitos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} {content.companyName}. Todos os direitos reservados.</p>
             {/* Visible Admin Access Button */}
             <button 
               onClick={onAdminClick}
