@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://miralimp.com.br/sitemap.xml

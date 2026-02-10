@@ -35,6 +35,7 @@ const BeforeAfter: React.FC = () => {
                     <BeforeAfterSlider 
                         beforeImg={project.before}
                         afterImg={project.after}
+                        altText={project.title}
                     />
                   </div>
                   <div className="p-6 bg-brand-navy-800/50 backdrop-blur-sm border-l-4 border-brand-gold">

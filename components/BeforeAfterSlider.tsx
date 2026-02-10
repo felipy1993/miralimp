@@ -5,13 +5,15 @@ interface BeforeAfterSliderProps {
   afterImg: string;
   labelBefore?: string;
   labelAfter?: string;
+  altText?: string;
 }
 
 const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({ 
   beforeImg, 
   afterImg, 
   labelBefore = "Antes", 
-  labelAfter = "Depois" 
+  labelAfter = "Depois",
+  altText = ""
 }) => {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,7 +57,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       {/* After image (Background) */}
       <img 
         src={afterImg} 
-        alt="Depois" 
+        alt={`Depois: ${altText}`} 
         className="absolute inset-0 w-full h-full object-cover"
         onError={(e) => {
           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&q=80&w=800';
@@ -69,7 +71,7 @@ const BeforeAfterSlider: React.FC<BeforeAfterSliderProps> = ({
       >
         <img 
           src={beforeImg} 
-          alt="Antes" 
+          alt={`Antes: ${altText}`} 
           className="absolute inset-0 w-full h-full object-cover filter contrast-125 saturate-50 brightness-90"
           style={{ width: containerRef.current ? `${containerRef.current.offsetWidth}px` : '100%' }}
           onError={(e) => {
