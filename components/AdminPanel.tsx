@@ -25,6 +25,7 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [showUploadHelp, setShowUploadHelp] = useState(false);
 
   // Escutar estado de autenticação do Firebase
   useEffect(() => {
@@ -315,7 +316,7 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="w-full max-w-6xl bg-brand-navy-800 p-8 rounded-2xl border border-brand-gold/20 shadow-2xl my-8"
+              className="w-full max-w-6xl bg-brand-navy-800 p-4 md:p-8 rounded-xl md:rounded-2xl border border-brand-gold/20 shadow-2xl my-4 md:my-8"
             >
               <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/5">
                 <div>
@@ -337,61 +338,62 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
               </div>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-8 border-b border-white/5">
+            {/* Tabs - Scrollable on mobile */}
+            <div className="flex gap-2 mb-6 md:mb-8 border-b border-white/5 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               <button
                 onClick={() => setActiveTab('contact')}
-                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                className={`pb-2 md:pb-3 px-3 md:px-4 text-sm md:text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
                   activeTab === 'contact' 
                     ? 'text-brand-gold border-b-2 border-brand-gold' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <Phone size={18} />
-                Informações de Contato
+                <Phone size={16} className="md:w-[18px] md:h-[18px]" />
+                Contato
               </button>
               <button
                 onClick={() => setActiveTab('hero')}
-                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                className={`pb-2 md:pb-3 px-3 md:px-4 text-sm md:text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
                   activeTab === 'hero' 
                     ? 'text-brand-gold border-b-2 border-brand-gold' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <Type size={18} />
-                Textos Principais
+                <Type size={16} className="md:w-[18px] md:h-[18px]" />
+                Textos
               </button>
               <button
                 onClick={() => setActiveTab('images')}
-                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                className={`pb-2 md:pb-3 px-3 md:px-4 text-sm md:text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
                   activeTab === 'images' 
                     ? 'text-brand-gold border-b-2 border-brand-gold' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <ImageIcon size={18} />
+                <ImageIcon size={16} className="md:w-[18px] md:h-[18px]" />
                 Imagens
               </button>
               <button
                 onClick={() => setActiveTab('testimonials')}
-                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                className={`pb-2 md:pb-3 px-3 md:px-4 text-sm md:text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
                   activeTab === 'testimonials' 
                     ? 'text-brand-gold border-b-2 border-brand-gold' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <MessageSquare size={18} />
+                <MessageSquare size={16} className="md:w-[18px] md:h-[18px]" />
                 Depoimentos
               </button>
               <button
                 onClick={() => setActiveTab('stats')}
-                className={`pb-3 px-4 font-medium transition-colors flex items-center gap-2 ${
+                className={`pb-2 md:pb-3 px-3 md:px-4 text-sm md:text-base font-medium transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
                   activeTab === 'stats' 
                     ? 'text-brand-gold border-b-2 border-brand-gold' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <Hash size={18} />
-                Estatísticas
+                <Hash size={16} className="md:w-[18px] md:h-[18px]" />
+                Dados
               </button>
             </div>
 
@@ -535,30 +537,45 @@ const AdminPanel: FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onCl
             {/* Images Tab */}
             {activeTab === 'images' && (
               <div className="space-y-8">
-                <div className="p-4 bg-brand-navy-800/80 border border-brand-gold/30 rounded-lg">
-                  <h4 className="text-brand-gold font-bold text-sm mb-2 flex items-center gap-2">
-                    <ImageIcon size={16} /> Como Adicionar Fotos
-                  </h4>
-                  <div className="text-xs text-gray-400 space-y-2 leading-relaxed">
-                    <p>
-                      Para garantir que as fotos nunca apaguem e funcionem sempre, use o site <strong>PostImages.org</strong>:
-                    </p>
-                    <ol className="list-decimal list-inside space-y-1 ml-1">
-                      <li>Clique no botão dourado <strong>"Ir para PostImages"</strong> abaixo.</li>
-                      <li>Suba sua foto do computador ou celular.</li>
-                      <li>Após carregar, copie o link que diz <strong>"Link direto"</strong>.</li>
-                      <li>Cole o link no campo correspondente aqui no painel e clique em <strong>Salvar</strong>.</li>
-                    </ol>
-                  </div>
-                  <a 
-                    href="https://postimages.org/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-brand-gold text-brand-navy-900 rounded font-bold text-xs hover:scale-105 transition-all"
+                <div className="bg-brand-navy-800/80 border border-brand-gold/30 rounded-lg overflow-hidden">
+                  <button 
+                    onClick={() => setShowUploadHelp(!showUploadHelp)}
+                    className="w-full flex items-center justify-between p-4 bg-brand-navy-900/50 hover:bg-brand-navy-900 transition-colors"
                   >
-                    <Upload size={14} />
-                    Ir para PostImages.org
-                  </a>
+                    <h4 className="text-brand-gold font-bold text-sm flex items-center gap-2">
+                      <ImageIcon size={16} /> Aprenda a Adicionar Fotos (Tutorial)
+                    </h4>
+                    <span className="text-brand-gold">{showUploadHelp ? '−' : '+'}</span>
+                  </button>
+                  
+                  {showUploadHelp && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="p-4 border-t border-brand-gold/10"
+                    >
+                      <div className="text-xs text-gray-400 space-y-2 leading-relaxed">
+                        <p>
+                          Para garantir que as fotos nunca apaguem e funcionem sempre, use o site <strong>PostImages.org</strong>:
+                        </p>
+                        <ol className="list-decimal list-inside space-y-1 ml-1">
+                          <li>Clique no botão dourado <strong>"Ir para PostImages"</strong> abaixo.</li>
+                          <li>Suba sua foto do computador ou celular.</li>
+                          <li>Após carregar, copie o link que diz <strong>"Link direto"</strong>.</li>
+                          <li>Cole o link no campo correspondente aqui no painel e clique em <strong>Salvar</strong>.</li>
+                        </ol>
+                      </div>
+                      <a 
+                        href="https://postimages.org/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-brand-gold text-brand-navy-900 rounded font-bold text-xs hover:scale-105 transition-all w-full justify-center md:w-auto"
+                      >
+                        <Upload size={14} />
+                        Ir para PostImages.org
+                      </a>
+                    </motion.div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
